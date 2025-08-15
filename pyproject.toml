@@ -1,17 +1,17 @@
 [project]
 name = "sdps-45m"
-version = "0.1.0"
+version = "0.2.0"
 description = "Tools of sdps for the Nobeyama 45m Telescope"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 dependencies = [
-    "astropy>=6.1,<8.0",
-    "dems>=2024.7,<2025.0",
+    "astropy>=6,<8",
+    "dems>=2025,<2026",
     "fire>=0.7,<1.0",
     "fmflow>=0.5,<1.0",
-    "numpy>=2.0,<3.0",
-    "xarray>=2024.0,<2026.0",
-    "zarr>=2.0,<3.0",
+    "numpy>=2,<3",
+    "xarray>=2024,<2026",
+    "zarr>=2,<3",
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -32,13 +32,14 @@ file = "LICENSE"
 sdps-45m = "sdps_45m:main"
 
 [project.urls]
-homepage = "https://sdps-dev.github.io/45m/v0.1.0"
+homepage = "https://sdps-dev.github.io/45m/v0.2.0"
 repository = "https://github.com/sdps-dev/45m"
 
 [dependency-groups]
 dev = [
-    "black>=25.0,<26.0",
-    "ipython>=8.0,<10.0",
+    "black>=25,<26",
+    "ipython>=8,<10",
+    "jupyter>=1,<2",
 ]
 
 [build-system]
