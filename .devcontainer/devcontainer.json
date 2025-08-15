@@ -12,6 +12,8 @@
         "vscode": {
             "extensions": [
                 "ms-python.black-formatter",
+                "ms-python.python",
+                "ms-toolsai.jupyter",
                 "streetsidesoftware.code-spell-checker",
                 "tamasfe.even-better-toml"
             ],
