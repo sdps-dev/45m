@@ -3,6 +3,7 @@ __all__ = ["to_dems"]
 
 # standard library
 from os import PathLike
+from re import search
 from pathlib import Path
 
 
@@ -13,11 +14,18 @@ from dems.d2 import MS
 from fmflow.fits.nro45m.functions import make_obsinfo_sam45, read_backendlog_sam45
 
 
-def to_dems(sam45: PathLike[str] | str, /, *, overwrite: bool = False) -> None:
+def to_dems(
+    sam45: PathLike[str] | str,
+    /,
+    *,
+    array: str = r"A\d+",
+    overwrite: bool = False,
+) -> None:
     """Convert a SAM45 logging to DEMS files of each array.
 
     Args:
         sam45: Path of the SAM45 logging.
+        array: Regular expression to select the array(s).
         overwrite: Whether to overwrite the existing DEMS files.
 
     """
@@ -32,14 +40,16 @@ def to_dems(sam45: PathLike[str] | str, /, *, overwrite: bool = False) -> None:
 
     # create and save DEMS of each array
     for subinfo in info:
-        array = subinfo["arrayid"]
-        subdata = data[data["arrayid"] == array]
+        if not search(array, arrayid := subinfo["arrayid"]):
+            continue
+        else:
+            subdata = data[data["arrayid"] == arrayid]
 
         ms = MS.new(
             # data
             data=subdata["arraydata"],
-            long_name=f"{sam45.name}.{array}",
-            name=f"{sam45.name}.{array}",
+            long_name=f"{sam45.name}.{arrayid}",
+            name=f"{sam45.name}.{arrayid}",
             units="dimensionless",
             # dimensions
             chan=np.arange(subinfo["chtotaln"]),
@@ -71,7 +81,7 @@ def to_dems(sam45: PathLike[str] | str, /, *, overwrite: bool = False) -> None:
         ms.coords["state"][(ms.state == "ON") & (ms.scan.astype(int) % 2 == 0)] = "OFF"
 
         # save DEMS as a zipped Zarr
-        zarr = sam45.with_name(f"{sam45.name}.{array}.zarr.zip")
+        zarr = sam45.with_name(f"{sam45.name}.{arrayid}.zarr.zip")
 
         if zarr.exists() and not overwrite:
             raise FileExistsError(zarr)
