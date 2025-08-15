@@ -1,6 +1,6 @@
 [project]
 name = "sdps-45m"
-version = "0.1.0"
+version = "0.2.0"
 description = "Tools of sdps for the Nobeyama 45m Telescope"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
@@ -32,7 +32,7 @@ file = "LICENSE"
 sdps-45m = "sdps_45m:main"
 
 [project.urls]
-homepage = "https://sdps-dev.github.io/45m/v0.1.0"
+homepage = "https://sdps-dev.github.io/45m/v0.2.0"
 repository = "https://github.com/sdps-dev/45m"
 
 [dependency-groups]
