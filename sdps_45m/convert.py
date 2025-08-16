@@ -76,9 +76,11 @@ def to_dems(
             telescope_name=header["telescop"],
         )
 
-        # reassign ON/OFF states
+        # reassign ON/OFF states (assuming R,ON,OFF,...,ON,OFF)
         ms = ms[(ms.state == "ON") | (ms.state == "R")]
         ms.coords["state"][(ms.state == "ON") & (ms.scan.astype(int) % 2 == 0)] = "OFF"
+        ms.coords["scan"][:] = np.ceil(ms.scan.astype(int) / 2).astype(int).astype(str)
+        ms.coords["subscan"][:] = np.where(ms.state == "OFF", 1, 0).astype(str)
 
         # save DEMS as a zipped Zarr
         zarr = sam45.with_name(f"{sam45.name}.{arrayid}.zarr.zip")
