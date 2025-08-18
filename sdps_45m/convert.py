@@ -48,7 +48,7 @@ def to_dems(
 
         ms = MS.new(
             # data
-            data=subdata["arraydata"],
+            data=subdata["arraydata"].astype(np.float64),
             long_name=f"{sam45.name}.{arrayid}",
             name=f"{sam45.name}.{arrayid}",
             units="dimensionless",
