@@ -2,6 +2,7 @@ __all__ = ["to_dems"]
 
 
 # standard library
+from datetime import datetime as dt
 from os import PathLike
 from re import search
 from pathlib import Path
@@ -55,6 +56,7 @@ def to_dems(
             chan=np.arange(subinfo["chtotaln"]),
             time=np.array(subdata["starttime"], "M8[ns]") - np.timedelta64(9, "h"),
             # labels
+            observation=dt.fromisoformat(header["date-obs"]).strftime("%Y%m%d%H%M%S"),
             state=subdata["scantype"],
             scan=subdata["iline_no"],
             frequency=np.linspace(
