@@ -10,9 +10,12 @@ from pathlib import Path
 
 # dependencies
 import numpy as np
+import xarray as xr
 from astropy.io.fits import HDUList
+from decode.utils import phaseof
 from dems.d2 import MS
 from fmflow.fits.nro45m.functions import make_obsinfo_sam45, read_backendlog_sam45
+from ndtools import Any
 
 
 def to_dems(
@@ -78,11 +81,11 @@ def to_dems(
             telescope_name=header["telescop"],
         )
 
-        # reassign ON/OFF states (assuming R,ON,OFF,...,ON,OFF)
-        ms = ms[(ms.state == "ON") | (ms.state == "R")]
-        ms.coords["state"][(ms.state == "ON") & (ms.scan.astype(int) % 2 == 0)] = "OFF"
-        ms.coords["scan"][:] = np.ceil(ms.scan.astype(int) / 2).astype(int).astype(str)
-        ms.coords["subscan"][:] = np.where(ms.state == "OFF", 1, 0).astype(str)
+        # reassign state and (sub)scan
+        if ms.time.min() >= np.datetime64("2025-12-01"):
+            ms = reassign_after_2025dec(ms)
+        else:
+            ms = reassign_before_2025dec(ms)
 
         # save DEMS as a zipped Zarr
         zarr = sam45.with_name(f"{sam45.name}.{arrayid}.zarr.zip")
@@ -91,3 +94,24 @@ def to_dems(
             raise FileExistsError(zarr)
         else:
             ms.to_zarr(zarr, mode="w")
+
+
+def reassign_after_2025dec(ms: xr.DataArray, /) -> xr.DataArray:
+    ms = ms[ms.state.values == Any(["OFF", "ON", "R"])]
+    scan = (
+        ms.scan.astype(int)
+        .where(ms.state.values == Any(["OFF", "R"]))
+        .ffill("time")
+        .astype(int)
+    )
+    ms.coords["scan"][:] = phaseof(scan.astype(str))
+    ms.coords["subscan"][:] = (ms.scan.astype(int) - scan).astype(str)
+    return ms
+
+
+def reassign_before_2025dec(ms: xr.DataArray, /) -> xr.DataArray:
+    ms = ms[ms.state.values == Any(["ON", "R"])]
+    ms.coords["state"][(ms.state == "ON") & (ms.scan.astype(int) % 2 == 0)] = "OFF"
+    ms.coords["scan"][:] = np.ceil(ms.scan.astype(int) / 2).astype(int).astype(str)
+    ms.coords["subscan"][:] = np.where(ms.state == "OFF", 1, 0).astype(str)
+    return ms
