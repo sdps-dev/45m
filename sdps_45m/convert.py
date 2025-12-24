@@ -98,14 +98,15 @@ def to_dems(
 
 def reassign_after_2025dec(ms: xr.DataArray, /) -> xr.DataArray:
     ms = ms[ms.state.values == Any(["OFF", "ON", "R"])]
-    scan = (
+    newscan = (
         ms.scan.astype(int)
         .where(ms.state.values == Any(["OFF", "R"]))
         .ffill("time")
         .astype(int)
     )
-    ms.coords["scan"][:] = phaseof(scan.astype(str))
-    ms.coords["subscan"][:] = (ms.scan.astype(int) - scan).astype(str)
+    subscan = ms.scan.astype(int) - newscan
+    ms.coords["scan"][:] = phaseof(newscan.astype(str))
+    ms.coords["subscan"][:] = subscan.astype(str)
     return ms
 
 
