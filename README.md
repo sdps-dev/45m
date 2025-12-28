@@ -15,7 +15,7 @@ pip install sdps-45m
 
 ## Usage
 
-### Convert SAM45 logging to DEMS files
+### Convert SAM45 log to DEMS files
 
 ```shell
 sdps-45m convert /path/to/sam45 [--overwrite]
